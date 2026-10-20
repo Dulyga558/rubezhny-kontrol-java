@@ -81,7 +81,7 @@ class Enrollment {
     private final Student student;
     private final Course course;
     private EnrollmentStatus status;
-    private Double grade; // null болуы мүмкін
+    private Double grade;
 
     public Enrollment(Student student, Course course) {
         this.student = Objects.requireNonNull(student, "Student required");
@@ -94,7 +94,6 @@ class Enrollment {
     public EnrollmentStatus getStatus() { return status; }
     public Double getGrade() { return grade; }
 
-    // Домендік команда: Баға қою
     public void assignGrade(double grade) {
         if (this.status != EnrollmentStatus.ACTIVE) {
             throw new IllegalStateException("Тек белсенді оқуға баға қоюға болады!");
@@ -106,7 +105,6 @@ class Enrollment {
         this.status = EnrollmentStatus.COMPLETED;
     }
 
-    // Домендік команда: Оқудан шығу
     public void drop() {
         if (this.status != EnrollmentStatus.ACTIVE) {
             throw new IllegalStateException("Тек белсенді курс сабағынан шығуға болады!");
@@ -123,7 +121,7 @@ class Enrollment {
     }
 }
 
-// 6. СЕРВИС КЛАССЫ (Коллекциялар мен Іздеу)
+// 6. СЕРВИС КЛАССЫ
 class StudentManagementSystem implements Searchable<Student> {
     private final List<Student> students = new ArrayList<>();
     private final List<Course> courses = new ArrayList<>();
@@ -153,7 +151,6 @@ class StudentManagementSystem implements Searchable<Student> {
         return enrollment;
     }
 
-    // Interface-тен келген әдіс: Студент ID бойынша іздеу
     @Override
     public Student findByIdOrCode(String studentId) {
         for (Student s : students) {
@@ -164,7 +161,6 @@ class StudentManagementSystem implements Searchable<Student> {
         return null;
     }
 
-    // Курс коды бойынша іздеу
     public Course findCourseByCode(String courseCode) {
         for (Course c : courses) {
             if (c.getCode().equalsIgnoreCase(courseCode)) {
@@ -187,7 +183,6 @@ public class Main {
     public static void main(String[] args) {
         StudentManagementSystem system = new StudentManagementSystem();
 
-        // 1. Деректер қосу
         Student s1 = new Student("S001", "Амина", 3.8);
         Student s2 = new Student("S002", "Диас", 3.2);
         system.addStudent(s1);
@@ -198,26 +193,21 @@ public class Main {
         system.addCourse(c1);
         system.addCourse(c2);
 
-        // 2. Курсқа тіркеу
         Enrollment e1 = system.enroll("S001", "CS202");
         Enrollment e2 = system.enroll("S002", "MATH101");
 
-        // 3. Операциялар орындау
-        e1.assignGrade(95.0); // Амина баға алды
-        e2.drop();            // Диас курстан шықты
+        e1.assignGrade(95.0);
+        e2.drop();
 
-        // 4. Нәтижелерді шығару
         system.printSummary();
 
-        // 5. Іздеуді тексеру
         System.out.println("\n=== ІЗДЕУ ТЕКСЕРУІ ===");
         Student found = system.findByIdOrCode("S001");
         System.out.println("Табылған студент: " + found);
 
-        // 6. Валидацияны тексеру (Exception ұстау)
         try {
-            e1.assignGrade(150); // Қате баға
-        } catch (IllegalArgumentException e) {
+            e1.assignGrade(90.0);
+        } catch (IllegalStateException e) {
             System.out.println("\nВалидация ұсталды: " + e.getMessage());
         }
     }
